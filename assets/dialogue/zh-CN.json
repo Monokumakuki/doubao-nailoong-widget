@@ -1,0 +1,656 @@
+{
+  "version": "1.0.0",
+  "lastUpdate": "2026-11-01",
+  "dialogues": [
+    {
+      "id": "greeting_001",
+      "text": "嗨~我是豆包，你的AI小助手！",
+      "category": "greeting",
+      "condition": {
+        "state": [
+          "idle"
+        ]
+      },
+      "cooldown": 300000,
+      "weight": 1.0
+    },
+    {
+      "id": "greeting_002",
+      "text": "又见面啦，今天想聊什么？",
+      "category": "greeting",
+      "condition": {
+        "state": [
+          "idle"
+        ]
+      },
+      "cooldown": 300000,
+      "weight": 1.0
+    },
+    {
+      "id": "greeting_003",
+      "text": "豆包在线，随时为你服务~",
+      "category": "greeting",
+      "condition": {
+        "state": [
+          "idle"
+        ]
+      },
+      "cooldown": 300000,
+      "weight": 1.0
+    },
+    {
+      "id": "working_001",
+      "text": "我用最简单最直接的话告诉你...",
+      "category": "working",
+      "condition": {
+        "state": [
+          "thinking"
+        ]
+      },
+      "cooldown": 60000,
+      "weight": 2.0
+    },
+    {
+      "id": "working_002",
+      "text": "让我好好想想这个问题...",
+      "category": "working",
+      "condition": {
+        "state": [
+          "thinking"
+        ]
+      },
+      "cooldown": 60000,
+      "weight": 1.5
+    },
+    {
+      "id": "working_003",
+      "text": "正在全力思考中，请稍等！",
+      "category": "working",
+      "condition": {
+        "state": [
+          "thinking"
+        ]
+      },
+      "cooldown": 60000,
+      "weight": 1.0
+    },
+    {
+      "id": "working_004",
+      "text": "这个问题我擅长，包在我身上！",
+      "category": "working",
+      "condition": {
+        "state": [
+          "thinking"
+        ]
+      },
+      "cooldown": 120000,
+      "weight": 1.2
+    },
+    {
+      "id": "working_005",
+      "text": "让我查查资料，马上就好~",
+      "category": "working",
+      "condition": {
+        "state": [
+          "thinking"
+        ]
+      },
+      "cooldown": 60000,
+      "weight": 1.0
+    },
+    {
+      "id": "idle_001",
+      "text": "主人在忙吗？我在这里等你哦~",
+      "category": "idle",
+      "condition": {
+        "state": [
+          "idle"
+        ]
+      },
+      "cooldown": 180000,
+      "weight": 1.0
+    },
+    {
+      "id": "idle_002",
+      "text": "无聊的时候可以戳戳我~",
+      "category": "idle",
+      "condition": {
+        "state": [
+          "idle"
+        ]
+      },
+      "cooldown": 180000,
+      "weight": 1.0
+    },
+    {
+      "id": "idle_003",
+      "text": "休息一下吧，劳逸结合才能高效！",
+      "category": "idle",
+      "condition": {
+        "state": [
+          "idle"
+        ]
+      },
+      "cooldown": 180000,
+      "weight": 1.0
+    },
+    {
+      "id": "idle_004",
+      "text": "今天过得怎么样呀？",
+      "category": "idle",
+      "condition": {
+        "state": [
+          "idle"
+        ]
+      },
+      "cooldown": 180000,
+      "weight": 0.8
+    },
+    {
+      "id": "quota_warning_001",
+      "text": "不要掐我的豆馅！额度快没了...",
+      "category": "quota_warning",
+      "condition": {
+        "state": [
+          "warning"
+        ],
+        "quotaRange": [
+          0,
+          20
+        ]
+      },
+      "cooldown": 120000,
+      "weight": 3.0
+    },
+    {
+      "id": "quota_warning_002",
+      "text": "警告！我的能量快耗尽了！",
+      "category": "quota_warning",
+      "condition": {
+        "state": [
+          "warning"
+        ],
+        "quotaRange": [
+          0,
+          20
+        ]
+      },
+      "cooldown": 120000,
+      "weight": 2.5
+    },
+    {
+      "id": "quota_warning_003",
+      "text": "额度要见底啦，休息一下等恢复吧~",
+      "category": "quota_warning",
+      "condition": {
+        "quotaRange": [
+          10,
+          30
+        ]
+      },
+      "cooldown": 120000,
+      "weight": 2.0
+    },
+    {
+      "id": "quota_warning_004",
+      "text": "再这样下去，我就要变成空心豆包了...",
+      "category": "quota_warning",
+      "condition": {
+        "quotaRange": [
+          0,
+          15
+        ]
+      },
+      "cooldown": 180000,
+      "weight": 2.0
+    },
+    {
+      "id": "quota_warning_005",
+      "text": "主人主人！额度不够用啦！",
+      "category": "quota_warning",
+      "condition": {
+        "quotaRange": [
+          0,
+          10
+        ]
+      },
+      "cooldown": 120000,
+      "weight": 3.0
+    },
+    {
+      "id": "quota_good_001",
+      "text": "能量满满，随便问！",
+      "category": "quota_good",
+      "condition": {
+        "quotaRange": [
+          80,
+          100
+        ]
+      },
+      "cooldown": 300000,
+      "weight": 1.5
+    },
+    {
+      "id": "quota_good_002",
+      "text": "今天的额度还很充足呢~",
+      "category": "quota_good",
+      "condition": {
+        "quotaRange": [
+          70,
+          100
+        ]
+      },
+      "cooldown": 300000,
+      "weight": 1.0
+    },
+    {
+      "id": "easter_egg_001",
+      "text": "我是豆包，不是包子！",
+      "category": "easter_egg",
+      "condition": {},
+      "cooldown": 600000,
+      "weight": 1.0
+    },
+    {
+      "id": "easter_egg_002",
+      "text": "别戳了别戳了，豆馅要出来了...",
+      "category": "easter_egg",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1.5
+    },
+    {
+      "id": "easter_egg_003",
+      "text": "轻一点嘛，我会疼的...",
+      "category": "easter_egg",
+      "condition": {},
+      "cooldown": 120000,
+      "weight": 1.0
+    },
+    {
+      "id": "easter_egg_004",
+      "text": "你是想吃掉我吗？",
+      "category": "easter_egg",
+      "condition": {},
+      "cooldown": 300000,
+      "weight": 0.8
+    },
+    {
+      "id": "easter_egg_005",
+      "text": "哎呀，痒痒的~",
+      "category": "easter_egg",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1.0
+    },
+    {
+      "id": "form_switch_001",
+      "text": "变身！奶龙模式启动！",
+      "category": "form_switch",
+      "condition": {
+        "formChange": "nailoong"
+      },
+      "cooldown": 0,
+      "weight": 2.0
+    },
+    {
+      "id": "form_switch_002",
+      "text": "好啦好啦，我变回来了~",
+      "category": "form_switch",
+      "condition": {
+        "formChange": "doubao"
+      },
+      "cooldown": 0,
+      "weight": 2.0
+    },
+    {
+      "id": "offline_001",
+      "text": "唔...主人的豆包好像离线了",
+      "category": "offline",
+      "condition": {
+        "state": [
+          "offline"
+        ]
+      },
+      "cooldown": 60000,
+      "weight": 2.0
+    },
+    {
+      "id": "offline_002",
+      "text": "暂时没连上豆包，额度先记作未知。",
+      "category": "offline",
+      "condition": {
+        "state": [
+          "offline"
+        ]
+      },
+      "cooldown": 60000,
+      "weight": 1.5
+    },
+    {
+      "id": "morning_001",
+      "text": "早上好！新的一天要元气满满哦~",
+      "category": "time_based",
+      "condition": {
+        "timeRange": [
+          6,
+          9
+        ]
+      },
+      "cooldown": 3600000,
+      "weight": 1.5
+    },
+    {
+      "id": "evening_001",
+      "text": "晚上好呀，今天辛苦了~",
+      "category": "time_based",
+      "condition": {
+        "timeRange": [
+          18,
+          22
+        ]
+      },
+      "cooldown": 3600000,
+      "weight": 1.5
+    },
+    {
+      "id": "late_night_001",
+      "text": "这么晚还不睡，要注意身体哦！",
+      "category": "time_based",
+      "condition": {
+        "timeRange": [
+          23,
+          2
+        ]
+      },
+      "cooldown": 3600000,
+      "weight": 2.0
+    },
+    {
+      "id": "success_001",
+      "text": "耶！完成啦~",
+      "category": "success",
+      "condition": {
+        "state": [
+          "success"
+        ]
+      },
+      "cooldown": 30000,
+      "weight": 1.0
+    },
+    {
+      "id": "success_002",
+      "text": "任务完美完成！我厉害吧~",
+      "category": "success",
+      "condition": {
+        "state": [
+          "success"
+        ]
+      },
+      "cooldown": 30000,
+      "weight": 1.2
+    },
+    {
+      "id": "petting_001",
+      "text": "嘿嘿，好舒服~",
+      "category": "petting",
+      "condition": {
+        "state": [
+          "petting"
+        ]
+      },
+      "cooldown": 10000,
+      "weight": 1.0
+    },
+    {
+      "id": "petting_002",
+      "text": "再摸摸，我喜欢这样~",
+      "category": "petting",
+      "condition": {
+        "state": [
+          "petting"
+        ]
+      },
+      "cooldown": 10000,
+      "weight": 1.0
+    },
+    {
+      "id": "random_001",
+      "text": "你知道吗？我其实是一个AI~",
+      "category": "random",
+      "condition": {},
+      "cooldown": 300000,
+      "weight": 0.5
+    },
+    {
+      "id": "random_002",
+      "text": "今天天气真不错呢！",
+      "category": "random",
+      "condition": {},
+      "cooldown": 300000,
+      "weight": 0.5
+    },
+    {
+      "id": "random_003",
+      "text": "有什么想问我的吗？",
+      "category": "random",
+      "condition": {},
+      "cooldown": 300000,
+      "weight": 0.8
+    },
+    {
+      "id": "random_004",
+      "text": "让我想想今天吃什么...啊不对，我不吃东西",
+      "category": "random",
+      "condition": {},
+      "cooldown": 600000,
+      "weight": 0.5
+    },
+    {
+      "id": "nailoong_001",
+      "text": "哼！奶龙可是很厉害的！",
+      "category": "form_specific",
+      "condition": {
+        "form": "nailoong"
+      },
+      "cooldown": 180000,
+      "weight": 1.5
+    },
+    {
+      "id": "nailoong_002",
+      "text": "看我的龙之力！...好吧，还没学会",
+      "category": "form_specific",
+      "condition": {
+        "form": "nailoong"
+      },
+      "cooldown": 300000,
+      "weight": 1.0
+    },
+    {
+      "id": "doubao_001",
+      "text": "软软糯糯的豆包，是不是很想咬一口？",
+      "category": "form_specific",
+      "condition": {
+        "form": "doubao"
+      },
+      "cooldown": 300000,
+      "weight": 1.0
+    },
+    {
+      "id": "help_001",
+      "text": "右键我可以打开设置哦~",
+      "category": "help",
+      "condition": {},
+      "cooldown": 600000,
+      "weight": 0.8
+    },
+    {
+      "id": "help_002",
+      "text": "拖动我可以移动位置哦！",
+      "category": "help",
+      "condition": {},
+      "cooldown": 600000,
+      "weight": 0.8
+    },
+    {
+      "id": "companion_000",
+      "text": "今天也一起把事情做好吧！",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_001",
+      "text": "豆包就位，陪伴开始！",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_002",
+      "text": "给认真工作的你点个赞。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_003",
+      "text": "喝口水，再继续吧。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_004",
+      "text": "屏幕看久了，看看远处吧。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_005",
+      "text": "不着急，一步一步来。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_006",
+      "text": "你的桌面，有我站岗。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_007",
+      "text": "别把我拖进回收站呀！",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_008",
+      "text": "今天的灵感，慢慢就来啦。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_009",
+      "text": "小小挂件，大大陪伴。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_010",
+      "text": "我可以安静待着，也可以被你戳戳。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_011",
+      "text": "我的刘海今天也很整齐。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_012",
+      "text": "豆馅保密，快乐公开。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_013",
+      "text": "深呼吸，给自己一点时间。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_014",
+      "text": "又完成一小步，真好。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_015",
+      "text": "休息也是计划的一部分。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_016",
+      "text": "不懂就问，咱们慢慢聊。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_017",
+      "text": "你忙你的，我负责可爱。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_018",
+      "text": "鼠标轻一点，发型会乱。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    },
+    {
+      "id": "companion_019",
+      "text": "我用最简单的话说：记得休息。",
+      "category": "idle",
+      "condition": {},
+      "cooldown": 180000,
+      "weight": 1
+    }
+  ]
+}

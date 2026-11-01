@@ -1,0 +1,45 @@
+# Node modules
+node_modules/
+
+# Electron
+dist/
+build/
+*.exe
+*.dmg
+*.AppImage
+
+# Runtime
+runtime/
+
+# User data
+.doubao-nailoong-widget/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test
+coverage/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Development
+.env
+.env.local
+artifacts/
+
+!src/native/WindowFollower.exe

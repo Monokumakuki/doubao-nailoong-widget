@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大肥豆插件设置</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-container">
+    <header class="settings-header">
+      <h1>⚙️ 大肥豆插件设置</h1>
+      <p class="version">v0.2.0</p>
+    </header>
+
+    <div class="settings-content">
+      <!-- 显示设置 -->
+      <section class="settings-section">
+        <h2>🎨 显示设置</h2>
+        
+        <div class="setting-item">
+          <label for="scale">缩放比例</label>
+          <div class="setting-control">
+            <input type="range" id="scale" min="0.5" max="2.0" step="0.1" value="1.0">
+            <span id="scale-value">100%</span>
+          </div>
+          <p class="setting-hint">调整挂件的显示大小</p>
+        </div>
+
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="alwaysOnTop">
+            <span>始终置顶</span>
+          </label>
+          <p class="setting-hint">挂件始终显示在其他窗口之上</p>
+        </div>
+
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="clickThrough">
+            <span>鼠标穿透</span>
+          </label>
+          <p class="setting-hint">鼠标可以穿透挂件点击下方窗口</p>
+        </div>
+
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="hostWindowOnly">
+            <span>仅在豆包窗口内显示</span>
+          </label>
+          <p class="setting-hint">跟随豆包客户区；切换应用时降层遮挡，仅最小化或关闭豆包时隐藏</p>
+        </div>
+      </section>
+
+      <!-- 角色设置 -->
+      <section class="settings-section">
+        <h2>🥟 角色设置</h2>
+        
+        <div class="setting-item">
+          <label for="defaultForm">默认形态</label>
+          <div class="setting-control">
+            <select id="defaultForm">
+              <option value="doubao">豆包形态</option>
+              <option value="nailoong">豆奶形态</option>
+            </select>
+          </div>
+          <p class="setting-hint">挂件启动时的初始形态</p>
+        </div>
+
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="autoSwitchForm">
+            <span>自动切换形态</span>
+          </label>
+          <p class="setting-hint">额度告急时自动切换为豆奶形态</p>
+        </div>
+
+        <div class="setting-item">
+          <button class="btn-action" id="switchFormNow">立即切换形态</button>
+        </div>
+      </section>
+
+      <!-- 交互设置 -->
+      <section class="settings-section">
+        <h2>💬 交互设置</h2>
+        
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="bubbleOn">
+            <span>显示气泡</span>
+          </label>
+          <p class="setting-hint">点击角色时显示思考气泡</p>
+        </div>
+
+        <div class="setting-item">
+          <label for="dialogueFrequency">台词频率</label>
+          <div class="setting-control">
+            <select id="dialogueFrequency">
+              <option value="high">高（经常说话）</option>
+              <option value="medium">中（适度说话）</option>
+              <option value="low">低（很少说话）</option>
+            </select>
+          </div>
+          <p class="setting-hint">控制挂件主动说话的频率</p>
+        </div>
+      </section>
+
+      <!-- 音效设置 -->
+      <section class="settings-section">
+        <h2>🔊 音效设置</h2>
+        
+        <div class="setting-item">
+          <label>
+            <input type="checkbox" id="sound">
+            <span>启用音效</span>
+          </label>
+          <p class="setting-hint">交互时播放音效</p>
+        </div>
+
+        <div class="setting-item">
+          <label for="volume">音量</label>
+          <div class="setting-control">
+            <input type="range" id="volume" min="0" max="1" step="0.1" value="0.5">
+            <span id="volume-value">50%</span>
+          </div>
+        </div>
+
+        <div class="setting-item">
+          <button class="btn-action" id="testSound">测试音效</button>
+        </div>
+      </section>
+
+      <!-- 额度设置 -->
+      <section class="settings-section"><h2>本地连接</h2><label for="cdpPort">CDP 端口（0 为自动发现）</label><input id="cdpPort" type="number" min="0" max="65535"><p class="setting-hint">仅连接本机豆包页面。没有调试端口或未找到额度时显示未知。</p></section>
+      <section class="settings-section">
+        <h2>📊 额度设置</h2>
+        
+        <div class="setting-item">
+          <label for="warningThreshold">警告阈值</label>
+          <div class="setting-control">
+            <input type="range" id="warningThreshold" min="0" max="50" step="5" value="20">
+            <span id="warningThreshold-value">20%</span>
+          </div>
+          <p class="setting-hint">额度低于此值时显示警告</p>
+        </div>
+
+        <div class="setting-item">
+          <button class="btn-action" id="refreshQuota">手动刷新额度</button>
+          <p class="setting-hint">立即从豆包读取最新额度</p>
+        </div>
+      </section>
+
+      <section class="settings-section"><h2>停靠位置</h2><div class="setting-control"><button class="btn-action" id="dockLeft">停靠左下角</button><button class="btn-action" id="dockRight">停靠右下角</button></div><p class="setting-hint">按角色可见边缘贴边；拖过中线自动转向，左侧镜像、右侧原图。</p></section>
+      <!-- 高级设置 -->
+      <section class="settings-section">
+        <h2>🔧 高级设置</h2>
+        
+        <div class="setting-item">
+          <button class="btn-action" id="resetPosition">重置窗口位置</button>
+          <p class="setting-hint">将挂件移回右下角</p>
+        </div>
+
+        <div class="setting-item">
+          <button class="btn-action" id="clearCache">清除缓存数据</button>
+          <p class="setting-hint">清除额度缓存和台词冷却记录</p>
+        </div>
+
+        <div class="setting-item">
+          <button class="btn-danger" id="resetSettings">恢复默认设置</button>
+          <p class="setting-hint">⚠️ 将所有设置恢复为默认值</p>
+        </div>
+      </section>
+
+      <!-- 关于 -->
+      <section class="settings-section">
+        <h2>ℹ️ 关于</h2>
+        
+        <div class="about-content">
+          <h3>大肥豆插件</h3>
+          <p>版本: 0.2.0</p>
+          <p>一个可爱的桌面伴侣，实时监控豆包AI的使用额度</p>
+          <p style="margin-top: 16px;">
+            <strong>⚠️ 免责声明</strong><br>
+            本项目为非官方社区项目，与字节跳动无关。<br>
+            "豆包"为字节跳动商标。
+          </p>
+          <p style="margin-top: 16px;">
+            
+            <a href="#" id="openLicense">开源协议 (MIT)</a>
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <footer class="settings-footer">
+      <button class="btn-secondary" id="closeSettings">关闭</button>
+      <button class="btn-primary" id="saveSettings">保存设置</button>
+    </footer>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

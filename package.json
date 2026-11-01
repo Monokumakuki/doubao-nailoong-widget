@@ -1,0 +1,36 @@
+{
+  "name": "doubao-nailoong-widget",
+  "version": "0.2.0",
+  "description": "大肥豆插件 - 社区开源项目",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron src/main/index.js",
+    "test": "node --test test/unit/*.test.js test/integration/*.test.js",
+    "dev": "electron src/main/index.js --dev",
+    "test:ui": "node tools/ui-smoke.js",
+    "package": "powershell -ExecutionPolicy Bypass -File tools/package-release.ps1",
+    "test:performance": "node tools/performance-check.js"
+  },
+  "keywords": [
+    "doubao",
+    "豆包",
+    "奶龙",
+    "widget",
+    "desktop-pet",
+    "quota-monitor"
+  ],
+  "author": "Community Contributors",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.22.1"
+  },
+  "devDependencies": {
+    "electron": "45.2.1",
+    "playwright": "1.64.1",
+    "rcedit": "^5.0.2"
+  },
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=10.0.0"
+  }
+}
