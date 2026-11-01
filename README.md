@@ -45,6 +45,22 @@ powershell -ExecutionPolicy Bypass -File tools/start-doubao-debug.ps1 -DoubaoPat
 
 已在豆包 Windows 2.32.6 验证官方“当前时段”“近 7 天”的已用 / 总额换算。界面“5 小时”沿用挂件标签，具体时段以豆包官方规则为准。额外积分不混入这两个额度。新版客户端页面结构变化可能需要更新适配器。
 
+## 任务栏一键联动启动
+
+源码目录可安装任务栏启动补丁（不修改豆包客户端程序文件）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/install-taskbar-startup.ps1 -WidgetPath "你的挂件目录\DouBao-Nailoong-Widget.exe"
+```
+
+需要豆包已固定到任务栏，固定项名为“豆包”。脚本保留原图标与 AppUserModelID 分组，把启动入口接到无控制台窗口的启动器。之后从任务栏首次启动豆包时，会同时启动挂件，并给豆包添加本机 CDP 参数。两个应用各自保证单实例。已打开豆包时，普通任务栏点击仍是切回窗口，不会重新启动进程。
+
+安装时不强制结束豆包；如果当前豆包没有开放 CDP，请从托盘正常退出一次，再从任务栏启动。客户端未来若重新创建了固定项，可重新运行安装脚本。启动配置、原始快捷方式备份和错误日志保存在 `%LOCALAPPDATA%\DaFeiDou`。恢复原入口：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/install-taskbar-startup.ps1 -Restore
+```
+
 ## 从源码运行
 
 Windows 10/11 x64，Node.js 24+：

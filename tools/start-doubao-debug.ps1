@@ -1,4 +1,4 @@
-param([int]$Port=9225,[string]$DoubaoPath)
+﻿param([int]$Port=9225,[string]$DoubaoPath)
 $ErrorActionPreference='Stop'
 if($Port -lt 1 -or $Port -gt 65535){throw 'Invalid port'}
 if(-not $DoubaoPath){
