@@ -150,7 +150,7 @@ else {
       hostStatus=message;
       const widget=wm.getMainWindow();
       if(settings.get('hostWindowOnly')&&followerWanted){
-        if(message.available&&message.fits){if(!widget.isVisible()){widget.showInactive();widget.webContents.invalidate();}}
+        if(message.visible===true&&message.available&&message.fits){if(!widget.isVisible()){widget.showInactive();widget.webContents.invalidate();}}
         else if(widget.isVisible())widget.hide();
       }
       if(message.bounds){const next=screen.screenToDipRect(wm.getMainWindow(),message.bounds);const old=wm.hostBounds;wm.hostBounds=next;if(!old||old.width!==next.width||old.height!==next.height){wm.applyScale(settings.get('scale'));broadcast();}}
