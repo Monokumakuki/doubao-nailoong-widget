@@ -71,28 +71,31 @@ internal static class WindowFollower {
   IntPtr locationHook=SetWinEventHook(0x800B,0x800B,IntPtr.Zero,moved,0,0,0);
   try{using(var parent=Process.GetProcessById(parentId)){
    host=FindHost();
-   string previous=null;var heartbeat=Stopwatch.StartNew();var scan=Stopwatch.StartNew();var layerClock=Stopwatch.StartNew();IntPtr lastForeground=IntPtr.Zero;bool wasTop=false;
+   string previous=null;var heartbeat=Stopwatch.StartNew();var scan=Stopwatch.StartNew();
    while(!stopping&&!parent.HasExited&&IsWindow(widget)){
     Msg m;while(PeekMessage(out m,IntPtr.Zero,0,0,1)){}
     IntPtr foreground=GetForegroundWindow();
-    if((!IsWindow(host)&&scan.ElapsedMilliseconds>1000)||scan.ElapsedMilliseconds>2000){var found=FindHost();if(found!=host){host=found;positioned=false;}scan.Restart();}
+    if(!IsHost(host)&&scan.ElapsedMilliseconds>1000){var found=FindHost();if(found!=host){host=found;positioned=false;}scan.Restart();}
     Rect c,w;bool available=Client(host,out c);uint foregroundPid;GetWindowThreadProcessId(foreground,out foregroundPid);
     bool fits=available&&GetWindowRect(widget,out w)&&c.Right-c.Left>=w.Right-w.Left&&c.Bottom-c.Top>=w.Bottom-w.Top;
     uint hostPid=0;if(available)GetWindowThreadProcessId(host,out hostPid);
-    // A background host must not leave an independent pet on Explorer's desktop.
-    bool show=available&&fits&&(foregroundPid==hostPid||foreground==widget||foregroundPid==parentId);
-    bool wantTop=show;
+    bool show=available&&fits;
+    bool wantTop=false;
     if(available)Follow();
-    // Electron must own show/hide so renderer visibility and pointer input stay in sync.
-    if(foreground!=lastForeground||wantTop!=wasTop){
-     layerClock.Restart();
-     if(wantTop)SetWindowPos(widget,new IntPtr(-1),0,0,0,0,0x0213);
-     // Demote without inserting near Explorer/Start: never reorder the owner's group.
-     else SetWindowPos(widget,new IntPtr(-2),0,0,0,0,0x0213);
+    // Keep a normal window immediately above the host, never above unrelated apps.
+    // Electron owns visibility; NOOWNERZORDER prevents moving the host's group.
+    if((GetWindowLongPtr(widget,-20).ToInt64()&8)!=0)
+     SetWindowPos(widget,new IntPtr(-2),0,0,0,0,0x0213);
+    if(show) {
+     IntPtr aboveHost=GetWindow(host,3);
+     if(aboveHost!=widget) {
+      // HWND_TOP is the normal-band boundary when the host follows a topmost window.
+      if(aboveHost!=IntPtr.Zero&&(GetWindowLongPtr(aboveHost,-20).ToInt64()&8)!=0)aboveHost=IntPtr.Zero;
+      SetWindowPos(widget,aboveHost,0,0,0,0,0x0213);
+     }
     }
-    lastForeground=foreground;wasTop=wantTop;
     bool behind=false;var nextWindow=GetWindow(foreground,2);for(int i=0;nextWindow!=IntPtr.Zero&&i<2000;i++){if(nextWindow==widget){behind=true;break;}nextWindow=GetWindow(nextWindow,2);}
-    string message="{\"behindForeground\":"+(behind?"true":"false")+",\"nativeTopmost\":"+((GetWindowLongPtr(widget,-20).ToInt64()&8)!=0?"true":"false")+",\"topmost\":"+(wantTop?"true":"false")+",\"foregroundPid\":"+foregroundPid+",\"parentPid\":"+parentId+",\"fits\":"+(fits?"true":"false")+",\"hostId\":\""+host.ToInt64()+"\",\"available\":"+(available?"true":"false")+",\"visible\":"+(show?"true":"false")+",\"bounds\":"+(available?JsonRect(c):"null")+"}";
+    string message="{\"aboveHost\":"+(show&&GetWindow(host,3)==widget?"true":"false")+",\"behindForeground\":"+(behind?"true":"false")+",\"nativeTopmost\":"+((GetWindowLongPtr(widget,-20).ToInt64()&8)!=0?"true":"false")+",\"topmost\":"+(wantTop?"true":"false")+",\"foregroundPid\":"+foregroundPid+",\"parentPid\":"+parentId+",\"fits\":"+(fits?"true":"false")+",\"hostId\":\""+host.ToInt64()+"\",\"available\":"+(available?"true":"false")+",\"visible\":"+(show?"true":"false")+",\"bounds\":"+(available?JsonRect(c):"null")+"}";
     if(message!=previous||heartbeat.ElapsedMilliseconds>1000){Console.WriteLine(message);Console.Out.Flush();previous=message;heartbeat.Restart();}
     Thread.Sleep(16);
    }
