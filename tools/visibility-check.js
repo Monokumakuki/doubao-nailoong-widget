@@ -21,6 +21,19 @@ const {_electron:electron}=require('playwright');const {execFileSync,spawn}=requ
  await cover.evaluate(({BrowserWindow})=>{const w=BrowserWindow.getAllWindows()[0];w.setAlwaysOnTop(true);w.focus();});
  await wait(s=>s?.available&&s.visible&&!s.nativeTopmost&&s.behindForeground&&s.aboveHost);assert.equal(await visible(),true);
  await cover.close();cover=null;await settings.bringToFront();await wait(s=>s?.visible);assert.equal(await visible(),true);
- const result={hostHide:true,hostMinimize:true,otherAppOccludesWithoutHiding:true,widgetImmediatelyAboveHost:true,otherTopmostOccludesWithoutHiding:true,returnShows:true};fs.writeFileSync(path.join(dir,'result.json'),JSON.stringify(result));console.log(result);
+ await app.evaluate(({BrowserWindow})=>{
+  global.visibilityTransitions=[];
+  const w=BrowserWindow.getAllWindows().find(w=>w.webContents.getURL().endsWith('/index.html'));
+  w.on('show',()=>global.visibilityTransitions.push('show'));w.on('hide',()=>global.visibilityTransitions.push('hide'));
+ });
+ cover=await electron.launch({executablePath:require('electron'),args:[path.join(root,'tools/fixtures/cover-window.js')],env});
+ for(let i=0;i<4;i++){
+  await (await cover.firstWindow()).bringToFront();await wait(s=>s?.visible&&s.behindForeground&&s.ownedByHost);
+  await settings.bringToFront();await wait(s=>s?.visible&&s.aboveHost&&s.ownedByHost);
+ }
+ assert.deepEqual(await app.evaluate(()=>global.visibilityTransitions),[],'Switching never hides or re-shows the pet');
+ await cover.close();cover=null;
+ fs.writeFileSync(command,'exit');await wait(s=>s?.hostId!==fixtureHandle);assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.webContents.getURL().endsWith('/index.html'))?.isDestroyed()),false);
+ const result={ownedByHost:true,repeatedSwitchesWithoutShowHide:true,hostClosePreservesWidget:true,hostHide:true,hostMinimize:true,otherAppOccludesWithoutHiding:true,widgetImmediatelyAboveHost:true,otherTopmostOccludesWithoutHiding:true,returnShows:true};fs.writeFileSync(path.join(dir,'result.json'),JSON.stringify(result));console.log(result);
  }finally{if(cover)await cover.close();if(app)await app.close();fs.writeFileSync(command,'exit');setTimeout(()=>{if(host.exitCode===null)host.kill();},500).unref();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

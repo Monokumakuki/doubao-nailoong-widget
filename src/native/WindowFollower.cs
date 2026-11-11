@@ -22,7 +22,7 @@ internal static class WindowFollower {
  [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
  [DllImport("user32.dll")] static extern IntPtr GetWindow(IntPtr w,uint cmd);
  [DllImport("user32.dll",EntryPoint="GetWindowLongPtrW")] static extern IntPtr GetWindowLongPtr(IntPtr w,int index);
- [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr w,int command);
+ [DllImport("user32.dll",EntryPoint="SetWindowLongPtrW",SetLastError=true)] static extern IntPtr SetWindowLongPtr(IntPtr w,int index,IntPtr value);
  [DllImport("user32.dll")] static extern bool SetWindowPos(IntPtr w,IntPtr after,int x,int y,int width,int height,uint flags);
  [DllImport("user32.dll")] static extern bool SetProcessDpiAwarenessContext(IntPtr c);
  [DllImport("user32.dll")] static extern bool SetProcessDPIAware();
@@ -33,6 +33,16 @@ internal static class WindowFollower {
  static IntPtr host=IntPtr.Zero,widget=IntPtr.Zero;
  static Rect lastClient;
  static bool positioned;
+ static IntPtr boundHost=IntPtr.Zero,originalOwner=IntPtr.Zero;
+ static bool ownerSaved;
+ static void BindOwner() {
+  if(host==boundHost)return;
+  if(!ownerSaved){originalOwner=GetWindow(widget,4);ownerSaved=true;}
+  // Ownership lets Windows raise both surfaces atomically on host activation.
+  // No reparenting: drag coordinates and Electron visibility remain unchanged.
+  SetWindowLongPtr(widget,-8,host);
+  boundHost=host;
+ }
  static bool IsHost(IntPtr w) {
   try {uint pid;Rect r;GetWindowThreadProcessId(w,out pid);
    if(!IsWindow(w)||GetWindow(w,4)!=IntPtr.Zero||!GetClientRect(w,out r)||r.Right<300||r.Bottom<150)return false;
@@ -79,6 +89,7 @@ internal static class WindowFollower {
     Rect c,w;bool available=Client(host,out c);uint foregroundPid;GetWindowThreadProcessId(foreground,out foregroundPid);
     bool fits=available&&GetWindowRect(widget,out w)&&c.Right-c.Left>=w.Right-w.Left&&c.Bottom-c.Top>=w.Bottom-w.Top;
     uint hostPid=0;if(available)GetWindowThreadProcessId(host,out hostPid);
+    BindOwner();
     bool show=available&&fits;
     bool wantTop=false;
     if(available)Follow();
@@ -95,13 +106,16 @@ internal static class WindowFollower {
      }
     }
     bool behind=false;var nextWindow=GetWindow(foreground,2);for(int i=0;nextWindow!=IntPtr.Zero&&i<2000;i++){if(nextWindow==widget){behind=true;break;}nextWindow=GetWindow(nextWindow,2);}
-    string message="{\"aboveHost\":"+(show&&GetWindow(host,3)==widget?"true":"false")+",\"behindForeground\":"+(behind?"true":"false")+",\"nativeTopmost\":"+((GetWindowLongPtr(widget,-20).ToInt64()&8)!=0?"true":"false")+",\"topmost\":"+(wantTop?"true":"false")+",\"foregroundPid\":"+foregroundPid+",\"parentPid\":"+parentId+",\"fits\":"+(fits?"true":"false")+",\"hostId\":\""+host.ToInt64()+"\",\"available\":"+(available?"true":"false")+",\"visible\":"+(show?"true":"false")+",\"bounds\":"+(available?JsonRect(c):"null")+"}";
+    string message="{\"ownedByHost\":"+(GetWindow(widget,4)==host?"true":"false")+",\"aboveHost\":"+(show&&GetWindow(host,3)==widget?"true":"false")+",\"behindForeground\":"+(behind?"true":"false")+",\"nativeTopmost\":"+((GetWindowLongPtr(widget,-20).ToInt64()&8)!=0?"true":"false")+",\"topmost\":"+(wantTop?"true":"false")+",\"foregroundPid\":"+foregroundPid+",\"parentPid\":"+parentId+",\"fits\":"+(fits?"true":"false")+",\"hostId\":\""+host.ToInt64()+"\",\"available\":"+(available?"true":"false")+",\"visible\":"+(show?"true":"false")+",\"bounds\":"+(available?JsonRect(c):"null")+"}";
     if(message!=previous||heartbeat.ElapsedMilliseconds>1000){Console.WriteLine(message);Console.Out.Flush();previous=message;heartbeat.Restart();}
     Thread.Sleep(16);
    }
   }}catch(Exception e){Console.Error.WriteLine(e.Message);}finally{
    if(locationHook!=IntPtr.Zero)UnhookWinEvent(locationHook);GC.KeepAlive(moved);
-   if(IsWindow(widget))SetWindowPos(widget,new IntPtr(-2),0,0,0,0,0x0213);
+   if(IsWindow(widget)) {
+    if(ownerSaved)SetWindowLongPtr(widget,-8,originalOwner);
+    SetWindowPos(widget,new IntPtr(-2),0,0,0,0,0x0213);
+   }
   }
  }
 }
