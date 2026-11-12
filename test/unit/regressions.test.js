@@ -22,6 +22,11 @@ test('one depleted quota warns even if the other is full; unknown is not zero',(
   sm.updateByQuota({online:true,fiveHour:null,weekly:null});assert.equal(sm.getCurrentState(),'idle');
   sm.updateByQuota({online:true,fiveHour:10,weekly:100},5);assert.equal(sm.getCurrentState(),'idle');sm.destroy();
 });
+test('older saved startup character migrates to a remembered manual selection',async t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'doubao-migrate-'));t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const configPath=path.join(dir,'settings.json');fs.writeFileSync(configPath,JSON.stringify({defaultForm:'nailoong',autoSwitchForm:true}));
+ const settings=new SettingsManager({configPath});await settings.load();assert.equal(settings.get('defaultForm'),'nailoong');assert.equal(settings.get('manualFormSelected'),true);
+});
 test('dialogues respect unknown quota, form, cooldown, and count',async()=>{
   const d=new DialogueManager();await d.load();assert.ok(d.dialogues.length>=50);assert.equal(new Set(d.dialogues.map(x=>x.id)).size,d.dialogues.length);
   d.dialogues=[{id:'quota',text:'low',condition:{quotaRange:[0,20]},cooldown:10000,weight:1}];

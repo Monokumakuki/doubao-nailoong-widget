@@ -5,7 +5,7 @@
 module.exports = {
   // 应用信息
   APP_NAME: '大肥豆插件',
-  APP_VERSION: '0.2.0',
+  APP_VERSION: '0.2.1',
   APP_ID: 'doubao-nailoong-widget',
 
   // 豆包相关
@@ -71,6 +71,7 @@ module.exports = {
     clickThrough: false,
     hostWindowOnly: false,
     defaultForm: 'doubao',
+    manualFormSelected: false,
     autoSwitchForm: true,
     bubbleOn: true,
     sound: true,

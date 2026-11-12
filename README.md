@@ -15,6 +15,11 @@
 - 后台读取官方额度页面：不弹额度窗、不点击头像菜单、不抢焦点；读取完成即关闭隐藏页面。
 - 设置持久化、缩放、鼠标穿透和声音开关。统计页目前显示“未知”，尚未接入本地账本。
 
+## 0.2.1 更新
+
+- 记住上次手动选择的豆包 / 豆奶形象，退出重开后保留，额度刷新也不会覆盖。旧设置中的启动形象会自动沿用；需要恢复按额度变身时，将“自动切换形态”关闭后重新开启。
+- 优化拖动宿主时的跟随响应，保留左右停靠与窗口遮挡行为。
+
 ## 下载与启动
 
 在 [Releases](https://github.com/Monokumakuki/doubao-nailoong-widget/releases) 下载 Windows x64 ZIP，完整解压后运行 `DouBao-Nailoong-Widget.exe`。便携包不需要安装 Node.js。
@@ -47,7 +52,7 @@ powershell -ExecutionPolicy Bypass -File tools/start-doubao-debug.ps1 -DoubaoPat
 
 ## 任务栏一键联动启动
 
-源码目录可安装任务栏启动补丁（不修改豆包客户端程序文件）：
+源码目录和便携包均附带 `tools/install-taskbar-startup.ps1`，可安装任务栏启动补丁（不修改豆包客户端程序文件）：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools/install-taskbar-startup.ps1 -WidgetPath "你的挂件目录\DouBao-Nailoong-Widget.exe"

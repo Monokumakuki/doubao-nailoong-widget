@@ -40,9 +40,12 @@ function chooseDialogue(extra = {}) {
 async function applySettings(updates) {
   const oldHostMode=settings.get('hostWindowOnly');
   const oldForm=settings.get('defaultForm');
-  settings.update(updates);
+  const selectedForm=Object.hasOwn(updates,'defaultForm')&&(updates.defaultForm!==oldForm||updates.defaultForm!==form);
+  const resumeAutomatic=Object.hasOwn(updates,'autoSwitchForm')&&updates.autoSwitchForm===true&&!settings.get('autoSwitchForm');
+  settings.update({...updates,...(resumeAutomatic?{manualFormSelected:false}:{}),...(selectedForm?{manualFormSelected:true}:{})});
   if (!await settings.save()) throw new Error('设置写入失败');
-  if (Object.hasOwn(updates, 'defaultForm') && updates.defaultForm!==oldForm) { form = settings.get('defaultForm'); manualForm = true; }
+  if(resumeAutomatic)manualForm=false;
+  if(selectedForm){form=settings.get('defaultForm');manualForm=true;}
   adapter.discoverService.manualPort = settings.get('cdpPort');
   adapter.discoverService.clearCache();
   wm.currentForm=form;
@@ -142,7 +145,7 @@ else {
   app.whenReady().then(async()=>{
     settings=new SettingsManager({configPath:path.join(dataDir,'settings.json')}); await settings.load();
     wm=new WindowManager(); wm.layoutSettings=settings.getAll();wm.hostWindowOnly=settings.get('hostWindowOnly'); effects=new ClickEffects(); effects.on('change',broadcast); follower=new NativeFollower(); machine=new WidgetStateMachine(); dialogues=new DialogueManager(); await dialogues.load();
-    adapter=new QuotaAdapter(); adapter.discoverService.manualPort=settings.get('cdpPort'); form=settings.get('defaultForm');
+    adapter=new QuotaAdapter(); adapter.discoverService.manualPort=settings.get('cdpPort'); form=settings.get('defaultForm');manualForm=settings.get('manualFormSelected');
     setupIpc();
     let lastPersistent=machine.getPersistentState();
     machine.on('state-change',()=>{if(machine.getPersistentState()!==lastPersistent){lastPersistent=machine.getPersistentState();chooseDialogue();}else broadcast();});

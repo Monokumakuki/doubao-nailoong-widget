@@ -1,6 +1,6 @@
 {
   "name": "doubao-nailoong-widget",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "大肥豆插件 - 社区开源项目",
   "main": "src/main/index.js",
   "scripts": {

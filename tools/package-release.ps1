@@ -29,7 +29,7 @@ New-Item -ItemType Directory -Path $docDir -Force | Out-Null
 foreach($name in @('ACCEPTANCE.md','ASSETS.md','images')){Copy-Item -LiteralPath (Join-Path $root ('docs/'+$name)) -Destination $docDir -Recurse}
 $toolDir=Join-Path $stage 'tools'
 New-Item -ItemType Directory -Path $toolDir -Force | Out-Null
-foreach($name in @('start-doubao-debug.ps1','start-doubao-debug.cmd')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination $toolDir}
+foreach($name in @('start-doubao-debug.ps1','start-doubao-debug.cmd','install-taskbar-startup.ps1')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination $toolDir}
 $modules = Join-Path $appDir 'node_modules'
 New-Item -ItemType Directory -Path $modules -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'node_modules/ws') -Destination $modules -Recurse

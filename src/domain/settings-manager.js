@@ -31,6 +31,8 @@ class SettingsManager extends EventEmitter {
       if (fs.existsSync(this.configPath)) {
         const data = fs.readFileSync(this.configPath, 'utf-8');
         const loaded = JSON.parse(data);
+        // Preserve the startup character already chosen in older settings files.
+        if(loaded&&Object.hasOwn(loaded,'defaultForm')&&!Object.hasOwn(loaded,'manualFormSelected'))loaded.manualFormSelected=true;
 
         // 合并默认设置和加载的设置
         this.update(loaded);
@@ -173,6 +175,7 @@ class SettingsManager extends EventEmitter {
       case 'clickThrough':
       case 'hostWindowOnly':
       case 'autoSwitchForm':
+      case 'manualFormSelected':
       case 'bubbleOn':
       case 'sound':
         return typeof value === 'boolean';

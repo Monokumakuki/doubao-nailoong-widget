@@ -33,6 +33,7 @@ if(-not(Test-Path -LiteralPath $hostPath)){throw '原豆包程序不存在。'}
 New-Item -ItemType Directory -Force -Path (Join-Path $installDir 'startup-backup') | Out-Null
 if(-not(Test-Path -LiteralPath $backup)){Copy-Item -LiteralPath $shortcutPath -Destination $backup}
 $source=Join-Path $root 'src/native/DoubaoLauncher.cs'
+if(-not(Test-Path -LiteralPath $source)){$source=Join-Path $root 'resources/app/src/native/DoubaoLauncher.cs'}
 $exe=Join-Path $installDir 'DoubaoWithWidget.exe'
 $compiler=Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 & $compiler /nologo /target:winexe /optimize+ "/out:$exe" $source

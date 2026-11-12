@@ -29,6 +29,18 @@ internal static class WindowFollower {
  [DllImport("user32.dll")] static extern IntPtr SetWinEventHook(uint first,uint last,IntPtr module,WinEvent cb,uint pid,uint tid,uint flags);
  [DllImport("user32.dll")] static extern bool UnhookWinEvent(IntPtr h);
  [DllImport("user32.dll")] static extern bool PeekMessage(out Msg m,IntPtr w,uint first,uint last,uint remove);
+ [DllImport("user32.dll")] static extern uint MsgWaitForMultipleObjectsEx(uint count,IntPtr handles,uint milliseconds,uint mask,uint flags);
+ [DllImport("winmm.dll")] static extern uint timeBeginPeriod(uint period);
+ [DllImport("winmm.dll")] static extern uint timeEndPeriod(uint period);
+ static bool moving,preciseTimer,hasMoved;
+ static readonly Stopwatch motion=Stopwatch.StartNew();
+ static void WaitForUpdate() {
+  bool fast=moving||(hasMoved&&motion.ElapsedMilliseconds<120);
+  if(fast&&!preciseTimer)preciseTimer=timeBeginPeriod(1)==0;
+  if(!fast&&preciseTimer){timeEndPeriod(1);preciseTimer=false;}
+  // WinEvents wake immediately; short polling only bridges gaps during a drag.
+  MsgWaitForMultipleObjectsEx(0,IntPtr.Zero,fast?2u:32u,0x04FF,4);
+ }
  static volatile bool stopping;
  static IntPtr host=IntPtr.Zero,widget=IntPtr.Zero;
  static Rect lastClient;
@@ -67,7 +79,7 @@ internal static class WindowFollower {
    SetWindowPos(widget,IntPtr.Zero,x,y,0,0,0x0215);lastClient=c;positioned=true;return;
   }
   int dx=c.Left-lastClient.Left,dy=c.Top-lastClient.Top;
-  if(dx!=0||dy!=0)SetWindowPos(widget,IntPtr.Zero,w.Left+dx,w.Top+dy,0,0,0x0215);
+  if(dx!=0||dy!=0){SetWindowPos(widget,IntPtr.Zero,w.Left+dx,w.Top+dy,0,0,0x0215);hasMoved=true;motion.Restart();}
   lastClient=c;
 
  }
@@ -77,16 +89,26 @@ internal static class WindowFollower {
   int parentId;long handle;if(args.Length<2||!Int32.TryParse(args[0],out parentId)||!Int64.TryParse(args[1],out handle))return;
   widget=new IntPtr(handle);
   new Thread(delegate(){try{Console.ReadLine();}catch{}stopping=true;}){IsBackground=true}.Start();
-  WinEvent moved=delegate(IntPtr hook,uint ev,IntPtr w,int obj,int child,uint thread,uint time){if(w==host&&obj==0)Follow();};
+  WinEvent moved=delegate(IntPtr hook,uint ev,IntPtr w,int obj,int child,uint thread,uint time){
+   if(w!=host||obj!=0)return;
+   if(ev==10)moving=true;
+   if(ev==11){moving=false;hasMoved=true;motion.Restart();}
+   Follow();
+  };
   IntPtr locationHook=SetWinEventHook(0x800B,0x800B,IntPtr.Zero,moved,0,0,0);
+  IntPtr dragHook=SetWinEventHook(10,11,IntPtr.Zero,moved,0,0,0);
   try{using(var parent=Process.GetProcessById(parentId)){
    host=FindHost();
-   string previous=null;var heartbeat=Stopwatch.StartNew();var scan=Stopwatch.StartNew();
+   string previous=null;var heartbeat=Stopwatch.StartNew();var scan=Stopwatch.StartNew();var metadata=Stopwatch.StartNew();
    while(!stopping&&!parent.HasExited&&IsWindow(widget)){
     Msg m;while(PeekMessage(out m,IntPtr.Zero,0,0,1)){}
+    Follow();
+    if(previous!=null&&metadata.ElapsedMilliseconds<32){WaitForUpdate();continue;}
+    metadata.Restart();
     IntPtr foreground=GetForegroundWindow();
     if(!IsHost(host)&&scan.ElapsedMilliseconds>1000){var found=FindHost();if(found!=host){host=found;positioned=false;}scan.Restart();}
     Rect c,w;bool available=Client(host,out c);uint foregroundPid;GetWindowThreadProcessId(foreground,out foregroundPid);
+    if(!available)moving=false;
     bool fits=available&&GetWindowRect(widget,out w)&&c.Right-c.Left>=w.Right-w.Left&&c.Bottom-c.Top>=w.Bottom-w.Top;
     uint hostPid=0;if(available)GetWindowThreadProcessId(host,out hostPid);
     BindOwner();
@@ -108,10 +130,13 @@ internal static class WindowFollower {
     bool behind=false;var nextWindow=GetWindow(foreground,2);for(int i=0;nextWindow!=IntPtr.Zero&&i<2000;i++){if(nextWindow==widget){behind=true;break;}nextWindow=GetWindow(nextWindow,2);}
     string message="{\"ownedByHost\":"+(GetWindow(widget,4)==host?"true":"false")+",\"aboveHost\":"+(show&&GetWindow(host,3)==widget?"true":"false")+",\"behindForeground\":"+(behind?"true":"false")+",\"nativeTopmost\":"+((GetWindowLongPtr(widget,-20).ToInt64()&8)!=0?"true":"false")+",\"topmost\":"+(wantTop?"true":"false")+",\"foregroundPid\":"+foregroundPid+",\"parentPid\":"+parentId+",\"fits\":"+(fits?"true":"false")+",\"hostId\":\""+host.ToInt64()+"\",\"available\":"+(available?"true":"false")+",\"visible\":"+(show?"true":"false")+",\"bounds\":"+(available?JsonRect(c):"null")+"}";
     if(message!=previous||heartbeat.ElapsedMilliseconds>1000){Console.WriteLine(message);Console.Out.Flush();previous=message;heartbeat.Restart();}
-    Thread.Sleep(16);
+    WaitForUpdate();
    }
   }}catch(Exception e){Console.Error.WriteLine(e.Message);}finally{
-   if(locationHook!=IntPtr.Zero)UnhookWinEvent(locationHook);GC.KeepAlive(moved);
+   if(locationHook!=IntPtr.Zero)UnhookWinEvent(locationHook);
+   if(dragHook!=IntPtr.Zero)UnhookWinEvent(dragHook);
+   if(preciseTimer)timeEndPeriod(1);
+   GC.KeepAlive(moved);
    if(IsWindow(widget)) {
     if(ownerSaved)SetWindowLongPtr(widget,-8,originalOwner);
     SetWindowPos(widget,new IntPtr(-2),0,0,0,0,0x0213);
