@@ -168,7 +168,7 @@ class HostDiscoverService {
       const url = new URL(cdpInfo.url);
       const ws = new URL(cdpInfo.webSocketDebuggerUrl);
       const officialWeb=['https:', 'http:'].includes(url.protocol)&&(url.hostname === 'doubao.com' || url.hostname.endsWith('.doubao.com'));
-      const officialDesktop=ownedPort && url.protocol==='doubao:' && url.hostname==='doubao-chat' && url.pathname==='/chat';
+      const officialDesktop=ownedPort && url.protocol==='doubao:' && url.hostname==='doubao-chat' && /^\/chat(\/|$)/.test(url.pathname);
       return cdpInfo.type === 'page' && (officialWeb || officialDesktop) &&
         ws.protocol === 'ws:' && ['localhost', '127.0.0.1', '[::1]'].includes(ws.hostname);
     } catch { return false; }

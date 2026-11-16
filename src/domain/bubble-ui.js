@@ -30,20 +30,34 @@ class BubbleUI {
     content.replaceChildren();
     if(page==='quota') {
       const q=this.state.quota || {};
-      for(const [key,label] of [['fiveHour','5 小时'],['weekly','1 周']]) {
-        const known=Number.isFinite(q[key]) && q[key]>=0 && q[key]<=100;
+      const bars=Array.isArray(q.bars)&&q.bars.length?q.bars:[
+        {key:'plan',label:'套餐额度',used:null,total:null,remainingPercent:null},
+        {key:'activity',label:'活动赠送额度',used:null,total:null,remainingPercent:null}
+      ];
+      const fmt=n=>Number(n).toLocaleString('zh-CN');
+      content.dataset.bars=String(bars.length);
+      for(const bar of bars) {
+        const hasNumbers=Number.isFinite(bar.used)&&Number.isFinite(bar.total)&&bar.total>0;
+        const usedPercent=Number.isFinite(bar.usedPercent)?bar.usedPercent:hasNumbers?bar.used/bar.total*100:null;
+        const remainingPercent=Number.isFinite(bar.remainingPercent)?bar.remainingPercent:usedPercent!==null?100-usedPercent:null;
+        const known=hasNumbers||remainingPercent!==null;
+        // Numeric bars fill by 已用; percentage-only fallbacks keep their remaining value.
+        const fillPercent=hasNumbers?usedPercent:remainingPercent;
         const row=document.createElement('div');row.className='quota-item';
         row.innerHTML='<div class="quota-label"><span></span><strong class="quota-value"></strong></div><div class="quota-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div class="quota-fill"></div></div>';
-        row.querySelector('span').textContent=label;
-        row.querySelector('strong').textContent=known ? Math.round(q[key])+'%' : '未知';
-        const track=row.querySelector('.quota-bar');track.setAttribute('aria-label',label+'剩余额度');
-        if(known)track.setAttribute('aria-valuenow',q[key]);else track.setAttribute('aria-valuetext','未知');
+        row.querySelector('span').textContent=bar.label || '额度';
+        row.querySelector('strong').textContent=hasNumbers?`已用 ${fmt(bar.used)} / ${fmt(bar.total)}`:remainingPercent!==null?Math.round(remainingPercent)+'%':'未知';
+        const track=row.querySelector('.quota-bar');track.setAttribute('aria-label',(bar.label||'额度')+'已用额度');
+        if(known)track.setAttribute('aria-valuenow',Math.round(fillPercent));else track.setAttribute('aria-valuetext','未知');
         track.dataset.known=String(known);
-        const fill=row.querySelector('.quota-fill');fill.style.width=known?q[key]+'%':'100%';fill.dataset.level=!known?'unknown':q[key]<=20?'critical':q[key]<50?'low':'good';
+        if(hasNumbers)track.setAttribute('aria-valuetext',`已用 ${fmt(bar.used)} / ${fmt(bar.total)}`);
+        const fill=row.querySelector('.quota-fill');fill.style.width=known?fillPercent+'%':'100%';fill.dataset.level=!known?'unknown':remainingPercent<=20?'critical':remainingPercent<50?'low':'good';
         content.append(row);
       }
       const hint=document.createElement('div');hint.className='quota-hint';
-      hint.textContent=!q.online?'未连接 · 额度未知':q.stale?'上次读取 · 已过期':q.cached?'上次读取 · 待更新':q.fetchedAt?'后台读取 · 官方额度':'等待额度数据';content.append(hint);
+      const status=!q.online?'未连接 · 额度未知':q.stale?'上次读取 · 已过期':q.cached?'上次读取 · 待更新':q.fetchedAt?'后台读取 · 官方额度':'等待额度数据';
+      hint.textContent=(Number.isFinite(q.available)?`可用 ${fmt(q.available)} · `:'')+status;
+      content.append(hint);
     } else if(page==='dialogue') {
       const phrase=document.createElement('p');phrase.className='dialogue-text';phrase.textContent=this.state.dialogue || '我用最简单最直接的话告诉你：我在呢。';content.append(phrase);
       const hint=document.createElement('button');hint.id='dialogue-next';hint.className='dialogue-next';hint.textContent='再说一句';hint.onclick=()=>{window.widgetAPI.nextDialogue();this._resetAutoHide();};content.append(hint);

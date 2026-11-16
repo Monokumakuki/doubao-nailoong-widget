@@ -64,3 +64,41 @@ test('custom desktop scheme requires an observed Doubao-owned listening port',()
  const d=new HostDiscoverService();const target={type:'page',url:'doubao://doubao-chat/chat',webSocketDebuggerUrl:'ws://127.0.0.1:9225/devtools/page/test'};
  assert.equal(d._isDouBaoTarget(target),false);assert.equal(d._isDouBaoTarget(target,true),true);assert.equal(d._isDouBaoTarget({...target,url:'doubao://doubao-background/'},true),false);
 });
+
+test('numeric quota cards merge activity grants, drop expired grants and expose totals',()=>{
+ const FixedDate=class extends Date{constructor(...args){args.length?super(...args):super(2026,10,16,12,0)}static now(){return new Date(2026,10,16,12,0).getTime()}};
+ const card=(heading,body)=>({children:[],textContent:heading,parentElement:{children:[1],textContent:body,parentElement:null}});
+ const rows=[
+  card('标准套餐','标准套餐11月18日 13:25 刷新已用 1,723/9,000'),
+  card('活动赠送额度','活动赠送额度12月1日 09:55 到期已用 116/200'),
+  card('活动赠送额度','活动赠送额度12月2日 20:33 到期已用 0/400'),
+  card('活动赠送额度','活动赠送额度10月1日 09:00 到期已用 300/300'),
+  card('可用额度','可用额度8,961套餐 7,277赠送 1,684')
+ ];
+ const q=vm.runInNewContext('('+readQuotaFunction.toString()+')()',{window:{},document:{querySelectorAll:s=>s==='div,span'?rows:[]},Date:FixedDate,console});
+ assert.equal(q.source,'official-quota-panel');assert.equal(q.cards.length,1);
+ assert.equal(q.cards[0].used,1723);assert.equal(q.cards[0].total,9000);assert.equal(q.cards[0].noteKind,'reset');
+ assert.equal(q.activity.count,2);assert.equal(q.activity.used,116);assert.equal(q.activity.total,600);
+ assert.equal(q.available,8961);assert.equal(q.gift,1684);
+ assert.ok(Math.abs(q.fiveHour-((9000-1723)/9000*100))<1e-9);assert.equal(q.weekly,null);
+});
+
+test('numeric cards produce one merged activity bar beside the plan bar',()=>{
+ const {QuotaAdapter}=require('../../src/adapters/quota-adapter');
+ const a=new QuotaAdapter();
+ const bars=a._buildBars({cards:[{kind:'plan',label:'标准套餐',used:1723,total:9000}],activity:{used:116,total:600,count:2}});
+ assert.equal(bars.length,2);assert.equal(bars[0].key,'plan');assert.equal(bars[0].label,'标准套餐');
+ assert.equal(bars[0].remaining,7277);assert.ok(Math.abs(bars[0].remainingPercent-80.85555555555555)<1e-9);
+ assert.ok(Math.abs(bars[0].usedPercent-19.144444444444442)<1e-9);
+ assert.equal(bars[1].key,'activity');assert.equal(bars[1].label,'活动赠送额度');assert.equal(bars[1].total,600);assert.equal(bars[1].count,2);
+ assert.deepEqual(a._buildBars({fiveHour:42,weekly:null}).map(b=>b.key),['fiveHour']);
+});
+
+test('desktop chat targets with a conversation id are still the host',()=>{
+ const d=new HostDiscoverService();
+ const base={type:'page',webSocketDebuggerUrl:'ws://127.0.0.1:9225/devtools/page/x'};
+ assert.equal(d._isDouBaoTarget({...base,url:'doubao://doubao-chat/chat/38453990504583682'},true),true);
+ assert.equal(d._isDouBaoTarget({...base,url:'doubao://doubao-chat/chat'},true),true);
+ assert.equal(d._isDouBaoTarget({...base,url:'doubao://doubao-chat/chatroom'},true),false);
+ assert.equal(d._isDouBaoTarget({...base,url:'doubao://doubao-chat/chat/123'},false),false);
+});

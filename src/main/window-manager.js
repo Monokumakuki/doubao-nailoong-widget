@@ -129,15 +129,20 @@ class WindowManager {
   visualX() { const s=this.effectiveScale||1;return this.mainWindow.getBounds().x+artGeometry(this.form(),this.facing,s).left+this.artShift*s; }
   place(visualX,y,facing=this.facing) {
     const s=this.effectiveScale||1;const result=characterPlacement(this.area(),this.mainWindow.getBounds(),visualX,y,this.form(),facing,s);
-    this.facing=facing;this.artShift=result.artShift;this.mainWindow.setBounds(result.bounds);return result;
+    // Reapplying rounded getBounds() sizes grows the owned window at 150% DPI on every drag frame.
+    this.facing=facing;this.artShift=result.artShift;
+    this.mainWindow.setBounds({...result.bounds,width:Math.round(WINDOW_WIDTH*s),height:Math.round(WINDOW_HEIGHT*s)});return result;
   }
   handleDragStart(point) {
     if(!this.mainWindow||this.mainWindow.isDestroyed())return;
+    // Sample native DIP coordinates; renderer screen coordinates can shift as a captured window moves at mixed DPI.
+    point=screen.getCursorScreenPoint();
     this.isDragging=true;this.dragOrigin={point,bounds:this.mainWindow.getBounds(),visualX:this.visualX()};
     this.mainWindow.setIgnoreMouseEvents(false);
   }
   handleDragMove(point) {
     if(!this.isDragging||!this.mainWindow||this.mainWindow.isDestroyed())return;
+    point=screen.getCursorScreenPoint();
     const area=this.area(),s=this.effectiveScale||1,origin=this.dragOrigin;
     const visualX=origin.visualX+point.x-origin.point.x;
     const width=artGeometry(this.form(),this.facing,s).width;

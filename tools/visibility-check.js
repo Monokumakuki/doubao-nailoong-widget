@@ -17,6 +17,14 @@ const {_electron:electron}=require('playwright');const {execFileSync,spawn}=requ
  async function wait(predicate){let state;for(let i=0;i<100;i++){state=await settings.evaluate(()=>widgetAPI.getState());if(predicate(state.hostStatus))return state.hostStatus;await settings.waitForTimeout(100);}throw Error(JSON.stringify(state.hostStatus)+' fixtureExit='+host.exitCode+' command='+fs.readFileSync(command,'utf8'));}
  const visible=()=>app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.webContents.getURL().endsWith('/index.html')).isVisible());
  await settings.bringToFront();await wait(s=>s?.available&&s.visible&&s.hostId===fixtureHandle);assert.equal(await visible(),true);
+ await page.evaluate(()=>widgetAPI.dock('left'));
+ const savedLeft=await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.webContents.getURL().endsWith('/index.html')).getBounds());
+ // Restart the native follower while keeping the same host geometry.
+ await page.evaluate(()=>widgetAPI.updateSettings({hostWindowOnly:false}));
+ await page.evaluate(()=>widgetAPI.updateSettings({hostWindowOnly:true}));
+ await wait(s=>s?.available&&s.visible&&s.hostId===fixtureHandle);await page.waitForTimeout(200);
+ const restoredLeft=await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows().find(w=>w.webContents.getURL().endsWith('/index.html')).getBounds());
+ assert.equal(restoredLeft.x,savedLeft.x,'Reattaching preserves saved left dock');
  fs.writeFileSync(command,'hide');await wait(s=>!s?.available&&!s?.visible);assert.equal(await visible(),false);
  fs.writeFileSync(command,'show');await settings.bringToFront();await wait(s=>s?.available&&s.visible&&s.hostId===fixtureHandle);assert.equal(await visible(),true);
  fs.writeFileSync(command,'minimize');await wait(s=>!s?.available&&!s?.visible);assert.equal(await visible(),false);

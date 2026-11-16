@@ -75,8 +75,8 @@ internal static class WindowFollower {
   int width=w.Right-w.Left,height=w.Bottom-w.Top;
   if(c.Right-c.Left<width||c.Bottom-c.Top<height)return;
   if(!positioned){
-   int x=c.Right-width-6,y=c.Bottom-height-6;
-   SetWindowPos(widget,IntPtr.Zero,x,y,0,0,0x0215);lastClient=c;positioned=true;return;
+   // JS restores the saved dock; attaching/restarting must not reset it to right.
+   lastClient=c;positioned=true;return;
   }
   int dx=c.Left-lastClient.Left,dy=c.Top-lastClient.Top;
   if(dx!=0||dy!=0){SetWindowPos(widget,IntPtr.Zero,w.Left+dx,w.Top+dy,0,0,0x0215);hasMoved=true;motion.Restart();}

@@ -128,7 +128,7 @@ function setupIpc() {
   handle('get-dialogue', ()=>dialogues.getCurrentText());
   handle('play-sound', sound);
   handle('clear-cache', ()=>{
-    adapter.snapshot={fiveHour:null,weekly:null,fetchedAt:null,online:false,cached:false,stale:false};
+    adapter.snapshot={fiveHour:null,weekly:null,bars:[],activity:null,available:null,gift:null,fetchedAt:null,online:false,cached:false,stale:false};
     adapter.lastSampleTime=null; adapter.discoverService.clearCache(); dialogues.clearHistory();
     machine.updateByQuota(adapter.getSnapshot()); broadcast();
   });
@@ -150,13 +150,14 @@ else {
     let lastPersistent=machine.getPersistentState();
     machine.on('state-change',()=>{if(machine.getPersistentState()!==lastPersistent){lastPersistent=machine.getPersistentState();chooseDialogue();}else broadcast();});
     follower.on('message',message=>{
+      const previousHost=hostStatus?.hostId;
       hostStatus=message;
       const widget=wm.getMainWindow();
       if(settings.get('hostWindowOnly')&&followerWanted){
         if(message.visible===true&&message.available&&message.fits){if(!widget.isVisible()){widget.showInactive();widget.webContents.invalidate();}}
         else if(widget.isVisible())widget.hide();
       }
-      if(message.bounds){const next=screen.screenToDipRect(wm.getMainWindow(),message.bounds);const old=wm.hostBounds;wm.hostBounds=next;if(!old||old.width!==next.width||old.height!==next.height){wm.applyScale(settings.get('scale'));broadcast();}}
+      if(message.bounds){const next=screen.screenToDipRect(wm.getMainWindow(),message.bounds);const old=wm.hostBounds;wm.hostBounds=next;if(!old||previousHost!==message.hostId||old.width!==next.width||old.height!==next.height){wm.applyScale(settings.get('scale'));broadcast();}}
     });
     follower.on('failure',message=>logger.error('Window follower:',message));
     follower.on('exit',()=>{if(settings.get('hostWindowOnly')&&followerWanted&&!quitting){wm.hideMainWindow();clearTimeout(followerRetry);followerRetry=setTimeout(()=>{if(settings.get('hostWindowOnly')&&followerWanted&&!quitting)follower.start(wm.getMainWindow());},2000);}});
@@ -164,7 +165,7 @@ else {
       machine.updateByQuota(q,settings.get('warningThreshold'));
       if (!manualForm && settings.get('autoSwitchForm') && q.online && !q.stale) {
         const known=[q.fiveHour,q.weekly].filter(Number.isFinite);
-        const next=known.some(n=>n<=settings.get('warningThreshold')) ? 'nailoong' : known.length===2 && known.every(n=>n>50) ? 'doubao' : form;
+        const next=known.length&&known.some(n=>n<=settings.get('warningThreshold')) ? 'nailoong' : known.length && known.every(n=>n>50) ? 'doubao' : form;
         if(next!==form){form=next;wm.currentForm=form;wm.restoreLayout();chooseDialogue({formChange:form});sound('switch');}
       }
       broadcast();

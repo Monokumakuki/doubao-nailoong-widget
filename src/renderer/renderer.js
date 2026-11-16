@@ -24,7 +24,7 @@ async function init() {
   const release=e=>{
     if(!press)return;clearTimeout(pressTimer);press=null;
     if(dragged)widgetAPI.dragEnd({x:e.screenX,y:e.screenY});
-    else {widgetAPI.triggerPointerUp();if(!petted){widgetAPI.characterClick();if(state.settings.bubbleOn){if(bubbleUI.visible&&bubbleUI.currentPage===1){widgetAPI.nextDialogue();bubbleUI._resetAutoHide();}else bubbleUI.toggle();}}}
+    else {widgetAPI.triggerPointerUp();if(!petted){widgetAPI.characterClick();widgetAPI.refreshQuota();if(state.settings.bubbleOn){if(!bubbleUI.visible)bubbleUI.show();else bubbleUI._resetAutoHide();}}}
     dragged=false;
   };
   character.addEventListener('pointerup',release);
